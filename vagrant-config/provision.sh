@@ -147,7 +147,7 @@ docker service create --replicas=1 \
     --mount type=bind,source=/data/sites,destination=/data/sites,ro \
     --network director-sites \
     --name director-nginx \
-    nginx:latest
+    nginx:alpine
 
 # Remove old "static Nginx" service
 docker service rm director-nginx-static || true
@@ -207,7 +207,7 @@ docker service create --replicas=1 \
     --env=POSTGRES_PASSWORD=pwd \
     --network director-sites \
     --name director-postgres \
-    postgres:latest
+    postgres:13-alpine
 
 ## Set up MySQL service
 docker service rm director-mysql || true
