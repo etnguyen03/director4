@@ -178,6 +178,8 @@ class SiteMetaForm(forms.ModelForm):
     def __init__(self, *args: Any, user: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
+        self.user = user
+
         if not user.is_superuser:
             self.fields["purpose"].disabled = True
 
@@ -186,6 +188,18 @@ class SiteMetaForm(forms.ModelForm):
 
         if self.instance.name[0] in string.digits and cleaned_data["purpose"] != "user":
             self.add_error("name", "Project site names cannot start with a number")
+
+        if len(cleaned_data.get("users", [])) == 0 and not self.user.is_superuser:
+            self.add_error("users", "You must select at least one user for this site")
+
+        # For user sites, prevent a user from removing themselves
+        if (
+            "users" in cleaned_data.keys()
+            and cleaned_data["purpose"] == "user"  # Only for user sites do we enforce this
+            and self.user not in cleaned_data["users"]
+            and not self.user.is_superuser
+        ):
+            self.add_error("users", "You must include yourself as a user for this site")
 
         return cleaned_data
 
